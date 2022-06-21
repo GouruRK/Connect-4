@@ -151,7 +151,7 @@ class Play:
             return False
         return True
 
-    def add_token(self, x, player=None):
+    def add_token(self, x, player: Union[int, None]=None):
         for y in range(6 - 1, -1, -1):
             pos = (10 * y) + x
             if not (pos in self.player1 or pos in self.player2):
@@ -165,7 +165,7 @@ class Play:
                 return pos
         return None
 
-    def count(self, player, begin, end, step):
+    def count(self, player: int, begin: int, end: int, step: int):
         tokens = self.get_player_tokens(player)
         maxi = 0
         c = 0
@@ -179,14 +179,14 @@ class Play:
         maxi = max(c, maxi)
         return maxi
 
-    def get_nb_arround(self, player, pos):
+    def get_nb_arround(self, player: int, pos: int):
         res_line = self.count(player, pos - 3, pos + 4, 1)
         res_column = self.count(player, pos - 10 * 3, pos + 10 * 4, 10)
         res_diag_1 = self.count(player, pos - 11 * 3, pos + 11 * 4, 11)
         res_diag_2 = self.count(player, pos - 9 * 3, pos + 9 * 4, 9)
         return res_line, res_column, res_diag_1, res_diag_2
 
-    def is_win(self, pos):
+    def is_win(self, pos: int):
         player = self.get_player()
         line, column, diag_1, diag_2 = self.get_nb_arround(player, pos)
         if max(line, column, diag_1, diag_2) >= 4:
