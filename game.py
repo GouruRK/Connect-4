@@ -3,7 +3,9 @@ from typing import Union
 
 class Connect4:
     def __init__(
-        self, player1: Union[None, set] = None, player2: Union[None, set] = None
+        self,
+        player1: Union[None, set] = None,
+        player2: Union[None, set] = None,
     ):
         self.count_turn = 0
         if player1 is None:

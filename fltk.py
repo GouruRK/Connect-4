@@ -278,7 +278,9 @@ def polygone(points, couleur="black", remplissage="", epaisseur=1, tag=""):
     )
 
 
-def rectangle(ax, ay, bx, by, couleur="black", remplissage="", epaisseur=1, tag=""):
+def rectangle(
+    ax, ay, bx, by, couleur="black", remplissage="", epaisseur=1, tag=""
+):
     """
     Trace un rectangle noir ayant les point ``(ax, ay)`` et ``(bx, by)``
     comme coins opposés.
@@ -294,7 +296,14 @@ def rectangle(ax, ay, bx, by, couleur="black", remplissage="", epaisseur=1, tag=
     :return: identificateur d'objet
     """
     return __canevas.canvas.create_rectangle(
-        ax, ay, bx, by, outline=couleur, fill=remplissage, width=epaisseur, tag=tag
+        ax,
+        ay,
+        bx,
+        by,
+        outline=couleur,
+        fill=remplissage,
+        width=epaisseur,
+        tag=tag,
     )
 
 
@@ -377,7 +386,9 @@ def point(x, y, couleur="black", epaisseur=1, tag=""):
     :param str tag: étiquette d'objet (défaut : pas d'étiquette)
     :return: identificateur d'objet
     """
-    return cercle(x, y, epaisseur, couleur=couleur, remplissage=couleur, tag=tag)
+    return cercle(
+        x, y, epaisseur, couleur=couleur, remplissage=couleur, tag=tag
+    )
 
 
 # Image
@@ -432,7 +443,14 @@ def draw_custom_image(x, y, width, height, img, ancrage="center", tag=""):
 
 
 def texte(
-    x, y, chaine, couleur="black", ancrage="nw", police="Helvetica", taille=24, tag=""
+    x,
+    y,
+    chaine,
+    couleur="black",
+    ancrage="nw",
+    police="Helvetica",
+    taille=24,
+    tag="",
 ):
     """
     Affiche la chaîne ``chaine`` avec ``(x, y)`` comme point d'ancrage (par
@@ -450,7 +468,13 @@ def texte(
     """
 
     return __canevas.canvas.create_text(
-        x, y, text=chaine, font=(police, taille), tag=tag, fill=couleur, anchor=ancrage
+        x,
+        y,
+        text=chaine,
+        font=(police, taille),
+        tag=tag,
+        fill=couleur,
+        anchor=ancrage,
     )
 
 
@@ -633,7 +657,10 @@ def attribut(ev, nom):
         return getattr(ev, nom)
     else:
         raise TypeEvenementNonValide(
-            "Accès à l'attribut", nom, "impossible sur un événement de type", tev
+            "Accès à l'attribut",
+            nom,
+            "impossible sur un événement de type",
+            tev,
         )
 
 

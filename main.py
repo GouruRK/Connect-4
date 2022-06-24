@@ -9,6 +9,8 @@ WIDTH_WINDOW = 800
 
 
 class Token:
+    """Class representing visual tokens, when the display mode isn't text
+    """
     def __init__(
         self,
         x: int,
@@ -16,42 +18,87 @@ class Token:
         radius: int,
         color: str,
         board_id: Union[int, str],
-        visual_id: Union[int, str] = None,
     ):
+        """Initialisation
+
+        :param x: the token abscissa
+        :type x: int
+        :param y: the token ordinate
+        :type y: int
+        :param radius: the token radius
+        :type radius: int
+        :param color: the token color
+        :type color: str
+        :param board_id: the token number, position
+        :type board_id: Union[int, str]
+        """
         self.x = x
         self.y = y
         self.radius = radius
         self.color = color
         self.board_id = board_id
-        self.visual_id = visual_id
-        return None
+        self.visual_id = None
 
     def get_board_id(self):
+        """Return the position of the token
+        (the position in the grid)
+
+        :return: the position
+        :rtype: int
+        """
         return self.board_id
 
     def set_color(self, color: str):
+        """Specify new token color
+
+        :param color: the new color
+        :type color: str
+        :return: the new color
+        :rtype: str
+        """
         self.color = color
         return color
 
     def draw(self):
-        self.visual_id = fltk.cercle(self.x, self.y, 30, remplissage=self.color)
+        """Display the token
+
+        :return: the token tag
+        :rtype: int
+        """
+        self.visual_id = fltk.cercle(
+            self.x, self.y, 30, remplissage=self.color
+        )
         return self.visual_id
 
     def erase(self):
+        """Erase the token
+        """
         fltk.efface(self.visual_id)
         self.visual_id = None
-        return None
 
     def set_coords(self, x: int, y: int):
+        """Specify new coordinates of the token
+
+        :param x: the token new abscissa
+        :type x: int
+        :param y: the token new ordinate
+        :type y: int
+        :return: the new coordinates
+        :rtype: tuple[int, int]
+        """
         self.x = x
         self.y = y
         return x, y
 
     def refresh(self):
+        """Refresh the token
+        """
         self.erase()
         self.draw()
 
     def animate(self):
+        """Move the token
+        """
         step = 20
         y_init = 50
         y_final = self.y
@@ -64,47 +111,113 @@ class Token:
             t.refresh()
             fltk.mise_a_jour()
         t.erase()
-        return None
 
 
 class Game:
-    def __init__(self, display_type):
+    """Class allowing the player to play a game, managing all the inputs
+    """
+    
+    def __init__(self, display_type: str):
+        """Initialisation
+
+        :param display_type: the type of display. Must be 'graphic' or 'text'
+        :type display_type: str
+        """
         self.display_type = display_type
         self.radius = 30
         self.game = Connect4()
 
-    # Regular stuff
+    # Regular functions
 
     def get_player(self):
+        """Get the player's turn
+
+        :return: the player's turn
+        :rtype: int
+        """
         return self.game.get_player()
 
     def get_player_tokens(self, player: int):
+        """Get the player's tokens
+
+        :param player: the player
+        :type player: int
+        :return: the set of the positions of all his tokens
+        :rtype: set
+        """
         return self.game.get_player_tokens(player)
 
     def get_player_color(self, player: int):
+        """Get player's color
+
+        :param player: the player
+        :type player: int
+        :return: 'yellow' if player if '1', else 'red'
+        :rtype: str
+        """
         if player == 1:
             return "yellow"
         return "red"
 
     def get_player_symbol(self, player: int):
+        """Get player's symbol
+
+        :param player: the player
+        :type player: int
+        :return: 'X' if player if '1', else 'O'
+        :rtype: str
+        """
         if player == 1:
             return "X"
         return "O"
 
-    def add_token(self, pos, player=None):
+    def add_token(self, column: int, player: Union[int, None]=None):
+        """Add a player token in the column ``column`` of the game
+
+        :param column: the column to add the token
+        :type column: int
+        :param player: the player who placed the token, defaults to None
+        :type player: Union[int, None], optional
+        :return: the position of the new token, None if the token can't be add in the column
+        :rtype: Union[int, None]
+        """
         if player is None:
             player = self.get_player()
-        return self.game.add_token(pos, player)
+        pos = self.game.add_token(column, player)
+        return pos
 
-    def is_win(self, pos):
+    def is_win(self, pos: Union[int, None]=None):
+        """Return true if one of the players connect 4 tokens
+
+        :param pos: the position of the last token placed, defaults to None
+        :type pos: Union[int, None], optional
+        :return: True if one player wins, else False
+        :rtype: bool
+        """
+        if pos is None:
+            for column in range(7):
+                for pos in {10*y+column for y in range(6)}:
+                    if self.game.is_win(pos):
+                        return True
+            return False
         return self.game.is_win(pos)
 
     def add_turn(self):
+        """specify that one players have played
+
+        :return: the new amount of turn
+        :rtype: int
+        """
         return self.game.add_turn()
 
     # With a window
 
     def draw_circles(self):
+        """Draw circles representing empty holes on the board and tokens
+
+        :return: _description_
+        :rtype: _type_
+        """
         x = 50
         dx = WIDTH_WINDOW / 7
         dy = HEIGHT_WINDOW / 6
@@ -203,8 +316,12 @@ class Game:
                 if res:
                     pos = self.add_token(x)
                     if pos is not None:
-                        visual_token = self.find_visual_token(pos, visual_board)
-                        visual_token.set_color(self.get_player_color(self.get_player()))
+                        visual_token = self.find_visual_token(
+                            pos, visual_board
+                        )
+                        visual_token.set_color(
+                            self.get_player_color(self.get_player())
+                        )
                         visual_token.animate()
                         visual_token.refresh()
                         if self.is_win(pos):
