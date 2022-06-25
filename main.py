@@ -340,7 +340,6 @@ class Game:
                         visual_token.refresh()
                         if self.is_win(pos):
                             is_fin = True
-                        self.add_turn()
             fltk.mise_a_jour()
         fltk.ferme_fenetre()
 
@@ -350,8 +349,6 @@ class Game:
             print(self)
             column = self.wait_input()
             pos = self.add_token(column)
-            if pos is not None:
-                self.add_turn()
         print(self)
 
 
