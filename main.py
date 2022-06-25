@@ -9,8 +9,8 @@ WIDTH_WINDOW = 800
 
 
 class Token:
-    """Class representing visual tokens, when the display mode isn't text
-    """
+    """Class representing visual tokens, when the display mode isn't text"""
+
     def __init__(
         self,
         x: int,
@@ -71,8 +71,7 @@ class Token:
         return self.visual_id
 
     def erase(self):
-        """Erase the token
-        """
+        """Erase the token"""
         fltk.efface(self.visual_id)
         self.visual_id = None
 
@@ -91,14 +90,12 @@ class Token:
         return x, y
 
     def refresh(self):
-        """Refresh the token
-        """
+        """Refresh the token"""
         self.erase()
         self.draw()
 
     def animate(self):
-        """Move the token
-        """
+        """Move the token"""
         step = 20
         y_init = 50
         y_final = self.y
@@ -114,9 +111,8 @@ class Token:
 
 
 class Game:
-    """Class allowing the player to play a game, managing all the inputs
-    """
-    
+    """Class allowing the player to play a game, managing all the inputs"""
+
     def __init__(self, display_type: str):
         """Initialisation
 
@@ -171,7 +167,7 @@ class Game:
             return "X"
         return "O"
 
-    def add_token(self, column: int, player: Union[int, None]=None):
+    def add_token(self, column: int, player: Union[int, None] = None):
         """Add a player token in the column ``column`` of the game
 
         :param column: the column to add the token
@@ -186,7 +182,7 @@ class Game:
         pos = self.game.add_token(column, player)
         return pos
 
-    def is_win(self, pos: Union[int, None]=None):
+    def is_win(self, pos: Union[int, None] = None):
         """Return true if one of the players connect 4 tokens
 
         :param pos: the position of the last token placed, defaults to None
@@ -196,7 +192,7 @@ class Game:
         """
         if pos is None:
             for column in range(7):
-                for pos in {10*y+column for y in range(6)}:
+                for pos in {10 * y + column for y in range(6)}:
                     if self.game.is_win(pos):
                         return True
             return False
@@ -215,77 +211,95 @@ class Game:
     def draw_circles(self):
         """Draw circles representing empty holes on the board and tokens
 
-        :return: _description_
-        :rtype: _type_
+        :return: a tuple within the first element the set of alls tokens, and the second element the abscissa coordinates of each column
+        :rtype: tuple[set[object], tuple[int, int]]
         """
         x = 50
         dx = WIDTH_WINDOW / 7
         dy = HEIGHT_WINDOW / 6
-        board = []
-        index_x = []
+        visual_tokens = set()
         for i1 in range(7):
-            index_x.append((x, x + dx))
             y = 50
-            temp = []
             for i2 in range(6):
                 t = Token(x, y, self.radius, "white", i2 * 10 + i1)
                 t.draw()
-                temp.append(t)
+                visual_tokens.add(t)
                 y += dy
             x += dx
-            board.append(temp)
-        return board, index_x
+        return visual_tokens, dx
 
-    def where_is_click(self, index_x: tuple, x: int):
+    def where_is_click(self, x: int, space: int):
+        """Get the column where the user clicked
+
+        :param x: the user mouse abscissa
+        :type x: int
+        :param space: the space of each column
+        :type space: int
+        :return: the column selected, False if the user clicked somewhere else
+        :rtype: Union[bool, int]
+        """
         r = self.radius
-        count = 0
-        for left, right in index_x:
+        column = 0
+        left = 50
+        right = 50 + space
+        for _ in range(7):
             if (left - r) <= x <= (right - r * 3):
-                return True, count
-            count += 1
-        return False, None
+                print(x, space, left, right)
+                return column
+            left, right = right, right + space
+            column += 1
+        return False
 
-    def find_visual_token(self, pos: int, board):
-        for line in board:
-            for token in line:
-                if token.get_board_id() == pos:
-                    return token
+    def find_visual_token(self, pos: int, visual_tokens: set):
+        """Find the visual token according to a position
+
+        :param pos: the position the token represent
+        :type pos: int
+        :param visual_tokens: the set of alls tokens
+        :type visual_tokens: set
+        :return: the token
+        :rtype: object
+        """
+        for token in visual_tokens:
+            if token.get_board_id() == pos:
+                return token
 
     # With text
 
-    def fill_board(self):
-        board = [[None for _ in range(7)] for _ in range(6)]
-        for pos in self.get_player_tokens(1):
-            board[pos // 10][pos % 10] = "X"
-        for pos in self.get_player_tokens(2):
-            board[pos // 10][pos % 10] = "O"
-        return board
-
     def __str__(self):
-        board = self.fill_board()
+        """Print the grid to text format
+
+        :return: the grid
+        :rtype: str
+        """
         ch = "\n\n"
-        for line in range(len(board)):
-            for car in range(len(board[line])):
-                if board[line][car] is None:
-                    if car == 6:
-                        ch += "|    |"
-                    else:
-                        ch += "|    "
+        for y in range(6):
+            for column in range(7):
+                pos = 10 * y + column
+                if pos in self.get_player_tokens(1):
+                    car = "X"
+                elif pos in self.get_player_tokens(2):
+                    car = "O"
                 else:
-                    if car == 6:
-                        ch += f"| {board[line][car]} | "
-                    else:
-                        ch += f"| {board[line][car]}  "
+                    car = " "
+                if column == 6:
+                    ch += f"| {car} | "
+                else:
+                    ch += f"| {car} "
             ch += "\n"
-        ch += "\n"
         for x in range(7):
             if x == 6:
-                ch += f"|  {x} |"
+                ch += f"| {x} |"
             else:
-                ch += f"|  {x} "
+                ch += f"| {x} "
         return ch
 
     def wait_input(self):
+        """Wait the user input
+
+        :return: the selected column
+        :rtype: int
+        """
         player = self.get_player_symbol(self.get_player())
         n = input(f"\n{player} > ")
         while not n.isdigit():
@@ -295,26 +309,26 @@ class Game:
     # main
 
     def main(self):
+        """The main function to play"""
         if self.display_type == "graphic":
-            return self.main_graphic()
-        return self.main_text()
+            self.main_graphic()
+        self.main_text()
 
     def main_graphic(self):
+        """The main function to play the game when the user choice is to use graphic display"""
         fltk.cree_fenetre(WIDTH_WINDOW, HEIGHT_WINDOW, "Connect 4")
         fltk.rectangle(0, 0, WIDTH_WINDOW, HEIGHT_WINDOW, remplissage="blue")
-        visual_board, index_x = self.draw_circles()
+        visual_board, space = self.draw_circles()
         tev = None
         is_fin = False
         while tev != "Quitte":
             ev = fltk.donne_ev()
             tev = fltk.type_ev(ev)
             if tev == "ClicGauche" and not is_fin:
-                res, x = self.where_is_click(
-                    index_x,
-                    fltk.abscisse_souris(),
-                )
-                if res:
-                    pos = self.add_token(x)
+                column = self.where_is_click(fltk.abscisse_souris(), space)
+                if not isinstance(column, bool):
+                    print(isinstance(column, int), column, type(column))
+                    pos = self.add_token(column)
                     if pos is not None:
                         visual_token = self.find_visual_token(
                             pos, visual_board
@@ -331,13 +345,12 @@ class Game:
         fltk.ferme_fenetre()
 
     def main_text(self):
-        while True:
+        """The main function to play the game when the user choice is to use graphic display"""
+        while not self.is_win(pos):
             print(self)
             column = self.wait_input()
             pos = self.add_token(column)
             if pos is not None:
-                if self.is_win(pos):
-                    break
                 self.add_turn()
         print(self)
 
