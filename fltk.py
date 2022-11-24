@@ -278,9 +278,7 @@ def polygone(points, couleur="black", remplissage="", epaisseur=1, tag=""):
     )
 
 
-def rectangle(
-    ax, ay, bx, by, couleur="black", remplissage="", epaisseur=1, tag=""
-):
+def rectangle(ax, ay, bx, by, couleur="black", remplissage="", epaisseur=1, tag=""):
     """
     Trace un rectangle noir ayant les point ``(ax, ay)`` et ``(bx, by)``
     comme coins opposés.
@@ -386,9 +384,7 @@ def point(x, y, couleur="black", epaisseur=1, tag=""):
     :param str tag: étiquette d'objet (défaut : pas d'étiquette)
     :return: identificateur d'objet
     """
-    return cercle(
-        x, y, epaisseur, couleur=couleur, remplissage=couleur, tag=tag
-    )
+    return cercle(x, y, epaisseur, couleur=couleur, remplissage=couleur, tag=tag)
 
 
 # Image

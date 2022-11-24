@@ -12,9 +12,11 @@ class Connect4:
     ):
         """Initialisation
 
-        :param player1: the position of player 1 tokens, defaults to None means that the player have no tokens yet
+        :param player1: the position of player 1 tokens, defaults to None
+                        means that the player have no tokens yet
         :type player1: Union[None, set], optional
-        :param player2: the position of player 1 tokens, defaults to None means that the player have no tokens yet
+        :param player2: the position of player 1 tokens, defaults to None
+                        means that the player have no tokens yet
         :type player2: Union[None, set], optional
         :param turn: the number of turns
         :type turn: int
@@ -56,7 +58,8 @@ class Connect4:
         :type column: int
         :param player: the player who played
         :type player: int
-        :return: the position of the token, None if there is no place remaining in the column
+        :return: the position of the token, None if there is no place
+                 remaining in the column
         :rtype: Union[int, None]
         """
         for y in range(6 - 1, -1, -1):
@@ -103,7 +106,8 @@ class Connect4:
         return max(c, maxi)
 
     def get_nb_arround(self, player: int, pos: int):
-        """Get the number maximum of "linked" tokens from a center position in alls directions
+        """Get the number maximum of "linked" tokens from a center position
+           in alls directions
 
         :param player: the players to look for tokens
         :type player: int
@@ -118,18 +122,25 @@ class Connect4:
         res_diag_2 = self.count(player, pos - 9 * 3, pos + 9 * 4, 9)
         return res_line, res_column, res_diag_1, res_diag_2
 
-    def is_win(self, pos: int):
+    def is_win(self, pos: Union[int, None]):
         """Tells if a player wins based on his last placed token
 
-        :param pos: the positions of the last token
-        :type pos: int
+        :param pos: the positions of the last token if type is int, else the
+                    whole grid
+        :type pos: Union[int, None]
         :return: True if he wins, else False
         :rtype: bool
         """
         player = self.get_player()
-        if max(*self.get_nb_arround(player, pos)) >= 4:
-            return True
-        return False
+        if pos is not None:
+            if max(*self.get_nb_arround(player, pos)) >= 4:
+                return True
+            return False
+        for column in range(7):
+            for pos in {10 * y + column for y in range(6)}:
+                if max(*self.get_nb_arround(player, pos)) >= 4:
+                    return True
+            return False
 
     def copy(self):
         """Copy the actual state of the game

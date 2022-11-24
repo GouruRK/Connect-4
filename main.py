@@ -65,9 +65,7 @@ class Token:
         :return: the token tag
         :rtype: int
         """
-        self.visual_id = fltk.cercle(
-            self.x, self.y, 30, remplissage=self.color
-        )
+        self.visual_id = fltk.cercle(self.x, self.y, 30, remplissage=self.color)
         return self.visual_id
 
     def erase(self):
@@ -110,7 +108,7 @@ class Token:
         t.erase()
 
 
-class Game:
+class Game(Connect4):
     """Class allowing the player to play a game, managing all the inputs"""
 
     def __init__(self, display_type: str):
@@ -119,29 +117,11 @@ class Game:
         :param display_type: the type of display. Must be 'graphic' or 'text'
         :type display_type: str
         """
+        super().__init__()
         self.display_type = display_type
         self.radius = 30
-        self.game = Connect4()
 
     # Regular functions
-
-    def get_player(self):
-        """Get the player's turn
-
-        :return: the player's turn
-        :rtype: int
-        """
-        return self.game.get_player()
-
-    def get_player_tokens(self, player: int):
-        """Get the player's tokens
-
-        :param player: the player
-        :type player: int
-        :return: the set of the positions of all his tokens
-        :rtype: set
-        """
-        return self.game.get_player_tokens(player)
 
     def get_player_color(self, player: int):
         """Get player's color
@@ -167,52 +147,14 @@ class Game:
             return "X"
         return "O"
 
-    def add_token(self, column: int, player: Union[int, None] = None):
-        """Add a player token in the column ``column`` of the game
-
-        :param column: the column to add the token
-        :type column: int
-        :param player: the player who placed the token, defaults to None
-        :type player: Union[int, None], optional
-        :return: the position of the new token, None if the token can't be add in the column
-        :rtype: Union[int, None]
-        """
-        if player is None:
-            player = self.get_player()
-        print(player)
-        pos = self.game.add_token(column, player)
-        return pos
-
-    def is_win(self, pos: Union[int, None] = None):
-        """Return true if one of the players connect 4 tokens
-
-        :param pos: the position of the last token placed, defaults to None
-        :type pos: Union[int, None], optional
-        :return: True if one player wins, else False
-        :rtype: bool
-        """
-        if pos is None:
-            for column in range(7):
-                for pos in {10 * y + column for y in range(6)}:
-                    if self.game.is_win(pos):
-                        return True
-            return False
-        return self.game.is_win(pos)
-
-    def add_turn(self):
-        """specify that one players have played
-
-        :return: the new amount of turn
-        :rtype: int
-        """
-        return self.game.add_turn()
-
     # With a window
 
     def draw_circles(self):
         """Draw circles representing empty holes on the board and tokens
 
-        :return: a tuple within the first element the set of alls tokens, and the second element the abscissa coordinates of each column
+        :return: a tuple within the first element the set of alls tokens,
+                 and the second element the abscissa coordinates of each
+                 column
         :rtype: tuple[set[object], tuple[int, int]]
         """
         x = 50
@@ -236,7 +178,8 @@ class Game:
         :type x: int
         :param space: the space of each column
         :type space: int
-        :return: the column selected, False if the user clicked somewhere else
+        :return: the column selected, False if the user clicked somewhere
+                 else
         :rtype: Union[bool, int]
         """
         r = self.radius
@@ -321,7 +264,8 @@ class Game:
         return self.main_text()
 
     def main_graphic(self):
-        """The main function to play the game when the user choice is to use graphic display"""
+        """The main function to play the game when the user choice is to use
+        graphic display"""
         fltk.cree_fenetre(WIDTH_WINDOW, HEIGHT_WINDOW, "Connect 4")
         fltk.rectangle(0, 0, WIDTH_WINDOW, HEIGHT_WINDOW, remplissage="blue")
         visual_board, space = self.draw_circles()
@@ -333,14 +277,11 @@ class Game:
             if tev == "ClicGauche" and not is_fin:
                 column = self.where_is_click(fltk.abscisse_souris(), space)
                 if not isinstance(column, bool):
-                    pos = self.add_token(column)
+                    player = self.get_player()
+                    pos = self.add_token(column, player)
                     if pos is not None:
-                        visual_token = self.find_visual_token(
-                            pos, visual_board
-                        )
-                        visual_token.set_color(
-                            self.get_player_color(self.get_player())
-                        )
+                        visual_token = self.find_visual_token(pos, visual_board)
+                        visual_token.set_color(self.get_player_color(player))
                         visual_token.animate()
                         visual_token.refresh()
                         if self.is_win(pos):
@@ -350,12 +291,13 @@ class Game:
         fltk.ferme_fenetre()
 
     def main_text(self):
-        """The main function to play the game when the user choice is to use graphic display"""
+        """The main function to play the game when the user choice is to use
+        graphic display"""
         g = False
         while not g:
             print(self)
             column = self.wait_input()
-            pos = self.add_token(column)
+            pos = self.add_token(column, self.get_player())
             g = self.is_win(pos)
             self.add_turn()
         print(self)
