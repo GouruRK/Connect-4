@@ -64,7 +64,6 @@ class Connect4:
             if self.is_pos_empty(pos):
                 tokens = self.get_player_tokens(player)
                 tokens.add(pos)
-                self.add_turn()
                 return pos
         return None
 

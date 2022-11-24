@@ -179,6 +179,7 @@ class Game:
         """
         if player is None:
             player = self.get_player()
+        print(player)
         pos = self.game.add_token(column, player)
         return pos
 
@@ -244,7 +245,6 @@ class Game:
         right = 50 + space
         for _ in range(7):
             if (left - r) <= x <= (right - r * 3):
-                print(x, space, left, right)
                 return column
             left, right = right, right + space
             column += 1
@@ -289,6 +289,12 @@ class Game:
             ch += "\n"
         for x in range(7):
             if x == 6:
+                ch += f"| - |"
+            else:
+                ch += f"| - "
+        ch += "\n"
+        for x in range(7):
+            if x == 6:
                 ch += f"| {x} |"
             else:
                 ch += f"| {x} "
@@ -311,8 +317,8 @@ class Game:
     def main(self):
         """The main function to play"""
         if self.display_type == "graphic":
-            self.main_graphic()
-        self.main_text()
+            return self.main_graphic()
+        return self.main_text()
 
     def main_graphic(self):
         """The main function to play the game when the user choice is to use graphic display"""
@@ -327,7 +333,6 @@ class Game:
             if tev == "ClicGauche" and not is_fin:
                 column = self.where_is_click(fltk.abscisse_souris(), space)
                 if not isinstance(column, bool):
-                    print(isinstance(column, int), column, type(column))
                     pos = self.add_token(column)
                     if pos is not None:
                         visual_token = self.find_visual_token(
@@ -340,15 +345,19 @@ class Game:
                         visual_token.refresh()
                         if self.is_win(pos):
                             is_fin = True
+                        self.add_turn()
             fltk.mise_a_jour()
         fltk.ferme_fenetre()
 
     def main_text(self):
         """The main function to play the game when the user choice is to use graphic display"""
-        while not self.is_win(pos):
+        g = False
+        while not g:
             print(self)
             column = self.wait_input()
             pos = self.add_token(column)
+            g = self.is_win(pos)
+            self.add_turn()
         print(self)
 
 
